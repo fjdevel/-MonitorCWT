@@ -11,6 +11,7 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpClient\HttpClient;
 use GuzzleHttp\Client;
 use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Response;
 
 class CWTController extends AbstractController
 {
@@ -62,8 +63,7 @@ class CWTController extends AbstractController
         ]);
         $res = json_decode($response->getBody()->getContents());
         if($res->{'error_code'}=="200"){
-            $session = $request->getSession();;
-            $session->start();
+            $session = $request->getSession();
             $session->set('tid', $res->{'body'}->tid);
             return $this->redirectToRoute('monitor');
         }else{
@@ -75,7 +75,42 @@ class CWTController extends AbstractController
     /**
      * @Route("/monitor", name="monitor")
      */
-    public function Monitor(){
-        return $this->render('cwt/cwtMonitor.html.twig', []);
+    public function Monitor(Request $request){
+        $data = $this->obtenerRecursos($request);
+        return $this->render('cwt/cwtMonitor.html.twig', [
+            'res'=>$data
+        ]);
+    }
+    
+    public function obtenerRecursos(Request $request){
+        $session = $request->getSession();
+        $client = new Client(['base_uri' => 'http://www.all-m2m.com:8081/','headers' => [ 'Content-Type' => 'application/json' ]]);
+        $response = $client->post("query",[
+            'body'=> json_encode(
+                [
+                    "action_cmd"=>"query_device_currentdata2",
+                    "seq_id"=>"1",
+                    "body"=>[
+                        "deviceid"=>"elx00001",
+                        "tid"=>$session->get('tid'),
+                    ],
+                    "version"=>"1.0"
+                ]
+            )
+        ]);
+        $res = json_decode($response->getBody()->getContents())->{'body'}->datadict;
+        $data = ["data"=>$res->RG2->value,
+                "label"=>$res->RG2->recv_time];
+        return $data;
+    }
+    /**
+     * @Route("/getData", name="getData")
+     */
+    public function getData(Request $request){
+        $data = $this->obtenerRecursos($request);
+        $response = new Response();
+        $response->setContent(json_encode($data));
+        $response->headers->set('Content-Type', 'application/json');
+        return $response;
     }
 }
