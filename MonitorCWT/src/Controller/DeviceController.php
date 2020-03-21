@@ -8,12 +8,11 @@ use Symfony\Component\Routing\Annotation\Route;
 class DeviceController extends AbstractController
 {
     /**
-     * @Route("/device", name="device")
+     * @Route("/admin", name="device")
      */
     public function index()
     {
-        return $this->render('device/index.html.twig', [
-            'controller_name' => 'DeviceController',
+        return $this->render('device/administration.html.twig', [
         ]);
     }
 }

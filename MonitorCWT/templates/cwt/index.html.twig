@@ -4,6 +4,9 @@
 {% endblock %}
 
 {% block body %}
+<div class="alert alert-danger {{displayClass}}" role="alert">
+  {{alert}}
+</div>
 	<div class="row justify-content-center mt-5">
 		<div class="col-md-6">
 			{{ form(form)}}

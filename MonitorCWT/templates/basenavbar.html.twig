@@ -1,4 +1,6 @@
 {% extends 'base.html.twig' %}
+{% block stylesheets %}
+{% endblock %}
 {% block title %}{% endblock %}
 {% block body %}
 	<nav class="navbar navbar-expand-lg navbar-light bg-dark">
@@ -13,7 +15,7 @@
 					</a>
 				</li>
 				<li class="nav-item">
-					<a class="nav-link text-light" href="#">Administration</a>
+					<a class="nav-link text-light" href="{{path('device')}}">Administration</a>
 				</li>
 				<li class="nav-item">
 					<a class="nav-link text-light" href="#">Logout</a>

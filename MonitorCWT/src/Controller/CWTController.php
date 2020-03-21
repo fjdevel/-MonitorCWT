@@ -12,15 +12,18 @@ use Symfony\Component\HttpClient\HttpClient;
 use GuzzleHttp\Client;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Response;
+use GuzzleHttp\Exception\RequestException;
 
 class CWTController extends AbstractController
 {
     /**
      * @Route("/", name="index")
      */
-    public function index()
+    public function index(Request $param)
     {
-       
+        $dclass = $param->query->get('displayClass','d-none');
+        $alert = $param->query->get('alert','');
+
         $form = $this->createFormBuilder()
             ->setAction($this->generateUrl('login'))
             ->setMethod('POST')
@@ -32,7 +35,8 @@ class CWTController extends AbstractController
             ->getForm();
         return $this->render('cwt/index.html.twig', [
             'form' =>$form->createView(),
-            'resp'=>""
+            'displayClass'=>$dclass,
+            'alert'=> $alert
         ]);
     }
 
@@ -46,30 +50,39 @@ class CWTController extends AbstractController
         $user = $request->get('form')['Username'];
         
         $client = new Client(['base_uri' => 'http://www.all-m2m.com:8081/','timeout'  => 10.0,'headers' => [ 'Content-Type' => 'application/json' ]]);
-        
-        $response = $client->post("member",[
-            'body'=> json_encode(
-                [
-                    "action_cmd"=>"login",
-                    "version"=>"1.0",
-                    "body"=>[
-                        "pwd"=>$pwd,
-                        "username"=>$user,
-                        "login_from"=>"web"
-                    ],
-
-                ]
-            )
-        ]);
-        $res = json_decode($response->getBody()->getContents());
-        if($res->{'error_code'}=="200"){
-            $session = $request->getSession();
-            $session->set('tid', $res->{'body'}->tid);
-            return $this->redirectToRoute('monitor');
-        }else{
-            return $this->redirectToRoute('index');
+        try{
+            $response = $client->post("member",[
+                'body'=> json_encode(
+                    [
+                        "action_cmd"=>"login",
+                        "version"=>"1.0",
+                        "body"=>[
+                            "pwd"=>$pwd,
+                            "username"=>$user,
+                            "login_from"=>"web"
+                        ],
+    
+                    ]
+                )
+            ]);
+            if($response)
+            $res = json_decode($response->getBody()->getContents());
+            if($res->{'error_code'}=="200"){
+                $session = $request->getSession();
+                $session->set('tid', $res->{'body'}->tid);
+                return $this->redirectToRoute('monitor');
+            }else{
+                return $this->redirectToRoute('index',[
+                    'displayClass'=>'',
+                    'alert'=>'Authentication error!, please check your credentials'
+                ]);
+            }
+        }catch(RequestException $e){
+            return $this->redirectToRoute('index',[
+                'displayClass'=>'',
+                'alert'=>'The server not response!, please check your connection'
+            ]);
         }
-        
     }
 
     /**
