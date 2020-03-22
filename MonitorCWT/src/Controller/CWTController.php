@@ -10,8 +10,8 @@ use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpClient\HttpClient;
 use GuzzleHttp\Client;
-use Symfony\Component\HttpFoundation\Session\Session;
-use Symfony\Component\HttpFoundation\Response;
+    use Symfony\Component\HttpFoundation\Session\Session;
+    use Symfony\Component\HttpFoundation\Response;
 use GuzzleHttp\Exception\RequestException;
 
 class CWTController extends AbstractController
@@ -66,7 +66,7 @@ class CWTController extends AbstractController
                 )
             ]);
             if($response)
-            $res = json_decode($response->getBody()->getContents());
+                $res = json_decode($response->getBody()->getContents());
             if($res->{'error_code'}=="200"){
                 $session = $request->getSession();
                 $session->set('tid', $res->{'body'}->tid);

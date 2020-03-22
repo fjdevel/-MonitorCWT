@@ -13,10 +13,7 @@
 					<button class="btn btn-info dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 						Devices
 					</button>
-					<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-						<a class="dropdown-item" href="#">Device 1</a>
-						<a class="dropdown-item" href="#">Device 2</a>
-						<a class="dropdown-item" href="#">Device 3</a>
+					<div id="dropdown-menu" class="dropdown-menu" aria-labelledby="dropdownMenuButton">	
 					</div>
 				</div>
 				<h6 class="mt-1">Select one or more interfaces</h6>
@@ -78,7 +75,18 @@
 {% endblock %}
 {% block javascripts %}
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
-<script>
-new Chart(document.getElementById("chartjs-0"),{"type":"line","data":{"labels":["January","February","March","April","May","June","July"],"datasets":[{"label":"My First Dataset","data":[65,59,80,81,56,55,40],"fill":false,"borderColor":"rgb(75, 192, 192)","lineTension":0.1}]},"options":{}});
-</script>
+	<script>
+	new Chart(document.getElementById("chartjs-0"),{"type":"line","data":{"labels":["January","February","March","April","May","June","July"],"datasets":[{"label":"My First Dataset","data":[65,59,80,81,56,55,40],"fill":false,"borderColor":"rgb(75, 192, 192)","lineTension":0.1}]},"options":{}});
+	</script>
+	<script>
+	$(function() {
+		let devices = $.post("{{path('myDevices')}}");
+		$.when(devices).done(function(data){
+			data.forEach(element => {
+				$('#dropdown-menu').append("<li class="+"dropdown-item"+">"+ element.deviceId +"</li>")
+			});
+			
+		});
+	});
+	</script>
 {% endblock %}
