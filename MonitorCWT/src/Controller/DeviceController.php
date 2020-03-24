@@ -86,6 +86,35 @@ class DeviceController extends AbstractController
      * @Route("/getDevices", name="myDevices")
      */
     public function getDevices(Request $request){
+       
+        
+        $session = $request->getSession();
+        $tid = $session->get("tid");
+        $UserRepo = $this->getDoctrine()->getRepository(User::class);
+        $user = $UserRepo->findOneBy(['tid'=>$tid]);
+        $devices = $user->getDevices();
+        $jsonContent = $this->getSerializer()->serialize($devices,'json');
+        $response = new Response();
+        $response->setContent($jsonContent);
+        $response->headers->set('Content-Type', 'application/json');
+        return $response;
+    }
+    /**
+     * @Route("/admin/views", name="adminviews")
+     */
+    public function adminViews(Request $request){
+        switch($request->request->get('view')){
+            case 1:
+                return $this->render('device/interfaces.html.twig',[]);
+                break;
+            case 2:
+                return $this->render('device/types.html.twig',[]);
+            break;
+        }
+    }
+
+
+    public function getSerializer(){
         $encoder = new JsonEncoder();
         $defaultContext = [
             AbstractNormalizer::CIRCULAR_REFERENCE_HANDLER => function ($object, $format, $context) {
@@ -94,17 +123,6 @@ class DeviceController extends AbstractController
         ];
         $normalizer = new ObjectNormalizer(null, null, null, null, null, null, $defaultContext);
 
-        $serializer = new Serializer([$normalizer], [$encoder]);
-        
-        $session = $request->getSession();
-        $tid = $session->get("tid");
-        $UserRepo = $this->getDoctrine()->getRepository(User::class);
-        $user = $UserRepo->findOneBy(['tid'=>$tid]);
-        $devices = $user->getDevices();
-        $jsonContent = $serializer->serialize($devices,'json');
-        $response = new Response();
-        $response->setContent($jsonContent);
-        $response->headers->set('Content-Type', 'application/json');
-        return $response;
+        return $serializer = new Serializer([$normalizer], [$encoder]);
     }
 }

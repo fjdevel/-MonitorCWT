@@ -3,28 +3,45 @@
 {% block title %}Administration
 {% endblock %}
 {% block stylesheets %}
-	<style></style>
+
+
 {% endblock %}
 {% block content %}
 	<div class="container-fluid">
 		<div class="row">
-			<nav class="col-md-2 d-md-block bg-light">
+			<nav class="position-fixed h-100 bg-light col-md-2">
 				<div class="sidebar-sticky">
 					<ul class="nav flex-column">
-						<li class="nav-item" id="devices">
+						<li class="nav-item mt-1" id="devices">
 							<a class="nav-link text-dark" href="{{path('device')}}">
 								<span class="fas fa-satellite-dish mr-1"></span>Devices
+							</a>
+						</li>
+						<li class="nav-item mt-1" id="devices">
+							<a class="nav-link text-dark" href="#" onclick="view(1)">
+								<span class="fas fa-signal mr-1"></span>Interfaces
+							</a>
+						</li>
+						<li class="nav-item mt-1" id="devices">
+							<a class="nav-link text-dark" href="#" onclick="view(2)">
+								<span class="fas fa-bolt mr-1"></span>Types
+							</a>
+						</li>
+						<li class="nav-item mt-1" id="devices">
+							<a class="nav-link text-dark" href="{{path('device')}}">
+								<span class="fas fa-table mr-1"></span>Records
 							</a>
 						</li>
 					</ul>
 				</div>
 			</nav>
-			<main
-				id="main" role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+			<main id="main" role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
 				{# Contenido #}
 				<div class="container mt-5">
-					<div class="col-md-6">
-						<div>
+					<div class="row">
+						<div class="col-md-5 card">
+						<div class="card-body">
+							<div>
 							<button class="btn btn-info" onclick="findDevices()">
 								<span class="fas fa-search mr-1"></span>Find devices</button>
 							<div class="spinner-border d-none" role="status" id="spinner">
@@ -43,6 +60,16 @@
 							</div> #}
 							<button type="submit" class="btn btn-success">Save</button>
 						</form>
+						</div>
+					</div>
+					<div class="col-md-5 ml-3 card">
+						<div class="card-body">
+						<h2 class="card-title">Registered devices</h2>
+						<div class="spinner-border text-info" id="spinner2" role="status">
+							<span class="sr-only">Loading...</span>
+						</div>
+						<ul id="devicesList" class="list-group"></ul>
+						</div>
 					</div>
 				</div>
 			</main>
@@ -52,14 +79,60 @@
 {% block javascripts %}
 	<script>
 		function findDevices() {
-$('#spinner').toggleClass('d-none');
-let p = $.post("{{ path('findDevices') }}");
-$.when(p).done(function (data) {
-data.forEach(function (dv) {
-$('#deviceSelect').append(new Option(dv, dv));
-});
-$('#spinner').toggleClass('d-none');
-});
-}
+			$('#spinner').toggleClass('d-none');
+			let p = $.post("{{ path('findDevices') }}");
+			$.when(p).done(function (data) {
+				data.forEach(function (dv) {
+					$('#deviceSelect').append(new Option(dv, dv));
+				});
+				$('#spinner').toggleClass('d-none');
+			});
+		}
+		
+		$(function(){
+			myDevices();
+		});
+		function myDevices(){
+			$.post("{{path('myDevices')}}").done(function(data){
+				data.forEach(element => {
+					$('#devicesList').append("<li class="+"list-group-item"+">"+ element.deviceId +"</li>");
+				
+					$('#spinner2').toggleClass('d-none');
+				});
+			});
+				
+		}
+		function view(view){
+			$.post("{{path('adminviews')}}",{'view': view})
+				.done(function(data){
+					$('#main').html(data);
+				});
+			switch (view) {
+				case 1:
+					let dev = $.post("{{path('myDevices')}}");
+					let typ = $.post("{{path('getTypes')}}");
+					$.when(dev,typ).done((data1,data2)=>{
+						data1[0].forEach(function (dv) {
+						$('#deviceSelect').append(new Option(dv.deviceId, dv.name))}
+						);
+						data2[0].forEach(element => {
+							$('#typeSelect').append(new Option(element.name,element.id));
+						});
+						$('#spinner').toggleClass('d-none');
+					});
+				break;
+				case 2:
+					$.post("{{path('getTypes')}}")
+					.done(function(data){
+						data.forEach(element => {
+							$('#typesList').append("<li class="+"list-group-item"+">"+ element.name +"</li>");
+						});
+						$('#spinner').toggleClass('d-none');
+					});
+					
+				break;
+			
+			}
+		}
 	</script>
 {% endblock %}

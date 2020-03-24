@@ -1,0 +1,40 @@
+<div class="container mt-5">
+	<div class="row">
+		<div class="col-md-5 ">
+			<div class="card">
+				<div class="card-header">
+					Register a new Interface
+				</div>
+				<div class="card-body">
+					<form action="{{path('newInterface')}}" method="post" class="mt-2">
+						<div class="form-group">
+							<label for="deviceSelect">Select the device to which you will add an interface</label>
+							<select class="form-control" id="deviceSelect" name="deviceSelect" required></select>
+						</div>
+						<div class="form-group">
+							<label for="deviceSelect">Select the Type</label>
+							<select class="form-control" id="typeSelect" name="typeSelect" required></select>
+						</div>
+
+						<div class="form-group">
+							<label for="channel">Channel</label>
+							<input type="number" class="form-control" id="channel" name="channel" required>
+						</div>
+						<div class="form-group">
+							<label for="channel">Name</label>
+							<input type="text" class="form-control" id="nameinterface" name="nameinterface" required>
+						</div>
+						<button type="submit" class="btn btn-success">Save</button>
+					</form>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-5  offset-md-1">
+			<div class="card">
+				<div class="card-header">
+					Device interface list
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

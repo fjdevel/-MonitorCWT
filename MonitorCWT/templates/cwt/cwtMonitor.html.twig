@@ -10,9 +10,12 @@
 			<div class="col-md-3">
 				<h6 class="mt-1">Select the Device</h6>
 				<div class="dropdown">
-					<button class="btn btn-info dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					<button class="btn btn-info dropdown-toggle d-none" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 						Devices
 					</button>
+					<div class="spinner-border" role="status" id="spinnerDevices">
+								<span class="sr-only">Loading...</span>
+							</div>
 					<div id="dropdown-menu" class="dropdown-menu" aria-labelledby="dropdownMenuButton">	
 					</div>
 				</div>
@@ -83,9 +86,10 @@
 		let devices = $.post("{{path('myDevices')}}");
 		$.when(devices).done(function(data){
 			data.forEach(element => {
-				$('#dropdown-menu').append("<li class="+"dropdown-item"+">"+ element.deviceId +"</li>")
+				$('#dropdown-menu').append("<li class="+"dropdown-item"+">"+ element.deviceId +"</li>");
 			});
-			
+			$('#dropdownMenuButton').toggleClass('d-none');
+			$('#spinnerDevices').toggleClass('d-none');
 		});
 	});
 	</script>

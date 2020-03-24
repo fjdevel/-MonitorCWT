@@ -1,0 +1,35 @@
+<div class="container mt-5">
+	<div class="row">
+		<div class="col-md-5 ">
+			<div class="card">
+				<div class="card-header">
+					Register a new type to monitor
+				</div>
+				<div class="card-body">
+					<form action="{{path('newType')}}" method="post" class="mt-2">
+
+
+						<div class="form-group">
+							<label for="nameType">Name of the type</label>
+							<input type="text" class="form-control" id="nameType" name="nameType" required>
+						</div>
+						<button type="submit" class="btn btn-success">Save</button>
+					</form>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-5  offset-md-1">
+			<div class="card">
+				<div class="card-header">
+					Types list
+				</div>
+				<div class="card-body">
+					<div class="spinner-border" role="status" id="spinner">
+								<span class="sr-only">Loading...</span>
+							</div>
+					<ul id="typesList" class="list-group"></ul>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
