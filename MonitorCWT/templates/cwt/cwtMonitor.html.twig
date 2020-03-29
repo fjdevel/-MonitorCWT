@@ -9,63 +9,29 @@
 		<div class="row">
 			<div class="col-md-3">
 				<h6 class="mt-1">Select the Device</h6>
-				<div class="dropdown">
-					<button class="btn btn-info dropdown-toggle d-none" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-						Devices
-					</button>
-					<div class="spinner-border" role="status" id="spinnerDevices">
-								<span class="sr-only">Loading...</span>
-							</div>
-					<div id="dropdown-menu" class="dropdown-menu" aria-labelledby="dropdownMenuButton">	
-					</div>
+				<div class="spinner-border" role="status" id="spinnerDevices">
+					<span class="sr-only">Loading...</span>
 				</div>
-				<h6 class="mt-1">Select one or more interfaces</h6>
-				<div class="form-check mt-1">
-					<input class="form-check-input" type="checkbox" value="" id="defaultCheck1">
-					<label class="form-check-label" for="defaultCheck1">
-						Interface 1
-					</label>
+				<select class="custom-select form-control d-none" id="selectDevices" name="selectDevices">
+					<option>Select One</option>
+				</select>
+					
+				<h6 class="mt-2">Select one or more interfaces</h6>
+				<div id="listinterfaces">
+				<div class="spinner-border d-none" role="status" id="spinnerIn">
+					<span class="sr-only">Loading...</span>
+				</div>
 				</div>
 				<div class="form-check mt-1">
-					<input class="form-check-input" type="checkbox" value="" id="defaultCheck1">
-					<label class="form-check-label" for="defaultCheck1">
-						Interface 2
-					</label>
-				</div>
-				<div class="form-check mt-1">
-					<input class="form-check-input" type="checkbox" value="" id="defaultCheck1">
-					<label class="form-check-label" for="defaultCheck1">
-						Interface 3
-					</label>
 				</div>
 
-				<h6 class="mt-1">Select the variables to monitor</h6>
-				<div class="form-check mt-1">
-					<input class="form-check-input" type="checkbox" value="" id="defaultCheck1">
-					<label class="form-check-label" for="defaultCheck1">
-						Frequency
-					</label>
-				</div>
-				<div class="form-check mt-1">
-					<input class="form-check-input" type="checkbox" value="" id="defaultCheck1">
-					<label class="form-check-label" for="defaultCheck1">
-						Voltage
-					</label>
-				</div>
-				<div class="form-check mt-1">
-					<input class="form-check-input" type="checkbox" value="" id="defaultCheck1">
-					<label class="form-check-label" for="defaultCheck1">
-						Power
-					</label>
-				</div>
-
-				<h6>Graphic options</h6>
+				{# <h6>Graphic options</h6>
 				<div class="form-check mt-1">
 					<input class="form-check-input" type="checkbox" value="" id="defaultCheck1">
 					<label class="form-check-label" for="defaultCheck1">
 						Group
 					</label>
-				</div>
+				</div> #}
 			</div>
 			<div class="col-md-9">
 				<div class="w-100">
@@ -86,10 +52,29 @@
 		let devices = $.post("{{path('myDevices')}}");
 		$.when(devices).done(function(data){
 			data.forEach(element => {
-				$('#dropdown-menu').append("<li class="+"dropdown-item"+">"+ element.deviceId +"</li>");
+				$('#selectDevices').append(new Option(element.deviceId,element.id));
 			});
-			$('#dropdownMenuButton').toggleClass('d-none');
+			$('#selectDevices').toggleClass('d-none');
 			$('#spinnerDevices').toggleClass('d-none');
+		});
+		$('#selectDevices').change(()=>{
+			$('#spinnerIn').toggleClass('d-none');
+			$("#selectDevices option:selected" ).each(function() {
+				let inter = $.post("{{path('getMyInterfaces')}}",{"device":this.value});
+				$.when(inter).done(data=>{
+					data.forEach(e=>{
+						$('#listinterfaces').append(
+							'<div class="form-check mt-1">'+
+								'<input class="form-check-input" type="checkbox" value="'+ e.id +'">'+
+								'<label class="form-check-label" for="defaultCheck1">'+
+									e.name+' - '+e.type.name+
+								'</label>'+
+							'</div>'
+						);
+					});
+					$('#spinnerIn').toggleClass('d-none');
+				});
+			});
 		});
 	});
 	</script>

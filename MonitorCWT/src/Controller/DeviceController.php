@@ -86,8 +86,6 @@ class DeviceController extends AbstractController
      * @Route("/getDevices", name="myDevices")
      */
     public function getDevices(Request $request){
-       
-        
         $session = $request->getSession();
         $tid = $session->get("tid");
         $UserRepo = $this->getDoctrine()->getRepository(User::class);

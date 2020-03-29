@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -26,6 +28,16 @@ class Device
      * @ORM\JoinColumn(nullable=false)
      */
     private $user;
+
+     /**
+     * @ORM\OneToMany(targetEntity="App\Entity\InterfaceDevice", mappedBy="device", orphanRemoval=true)
+     */
+    private $interfaces;
+
+    public function __construct()
+    {
+        $this->interfaces = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -52,6 +64,37 @@ class Device
     public function setUser(?User $user): self
     {
         $this->user = $user;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|InterfaceDevice[]
+     */
+    public function getInterfaces(): Collection
+    {
+        return $this->interfaces;
+    }
+
+    public function addInterface(InterfaceDevice $interface): self
+    {
+        if (!$this->interfaces->contains($interface)) {
+            $this->interfaces[] = $interface;
+            $interface->setDevice($this);
+        }
+
+        return $this;
+    }
+
+    public function removeInterface(InterfaceDevice $interface): self
+    {
+        if ($this->interfaces->contains($interface)) {
+            $this->interfaces->removeElement($interface);
+            // set the owning side to null (unless already changed)
+            if ($interface->getDevice() === $this) {
+                $interface->setDevice(null);
+            }
+        }
 
         return $this;
     }

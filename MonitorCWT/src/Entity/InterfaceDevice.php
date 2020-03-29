@@ -34,6 +34,12 @@ class InterfaceDevice
     private $type;
 
     /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Device", inversedBy="interfaces")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $device;
+
+    /**
      * @ORM\OneToMany(targetEntity="App\Entity\Registry", mappedBy="interface")
      */
     private $registries;
@@ -111,6 +117,18 @@ class InterfaceDevice
                 $registry->setInterface(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getDevice(): ?Device
+    {
+        return $this->device;
+    }
+
+    public function setDevice(?Device $device): self
+    {
+        $this->device = $device;
 
         return $this;
     }

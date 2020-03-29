@@ -111,22 +111,28 @@
 				case 1:
 					let dev = $.post("{{path('myDevices')}}");
 					let typ = $.post("{{path('getTypes')}}");
-					$.when(dev,typ).done((data1,data2)=>{
+					let inter = $.post("{{path('getAllInterface')}}");
+					$.when(dev,typ,inter).done((data1,data2,data3)=>{
 						data1[0].forEach(function (dv) {
-						$('#deviceSelect').append(new Option(dv.deviceId, dv.name))}
+						$('#deviceSelect').append(new Option(dv.deviceId, dv.id))}
 						);
 						data2[0].forEach(element => {
 							$('#typeSelect').append(new Option(element.name,element.id));
+						});
+						data3[0].forEach(element=>{
+							$('#interdata').append("<tr><td>"+element.id+"</td><td>"+element.name+"</td><td>"+element.channel+"</td><td>"+element.device.deviceId+"</td><td>"+element.type.name+"</td></tr>")
 						});
 						$('#spinner').toggleClass('d-none');
 					});
 				break;
 				case 2:
-					$.post("{{path('getTypes')}}")
-					.done(function(data){
-						data.forEach(element => {
+					let types = $.post("{{path('getTypes')}}");
+					
+					$.when(types).done(data1=>{
+						data1[0].forEach(element => {
 							$('#typesList').append("<li class="+"list-group-item"+">"+ element.name +"</li>");
 						});
+						
 						$('#spinner').toggleClass('d-none');
 					});
 					
