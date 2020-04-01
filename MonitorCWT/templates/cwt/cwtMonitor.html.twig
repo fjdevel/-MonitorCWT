@@ -2,7 +2,8 @@
 
 {% block title %}CWT Monitor
 {% endblock %}
-
+{% block stylesheets %}
+{% endblock %}
 
 {% block content %}
 <div class="alert alert-danger {{displayClass}}" role="alert">
@@ -39,7 +40,7 @@
 			</div>
 			<div class="col-md-9">
 				<div class="w-100">
-					<canvas id="chartjs-0"></canvas>
+				 <canvas id="chartjs-0"></canvas>
 					<div class="spinner-border text-primary d-none" role="status" id="spinnerChart">
 						<span class="sr-only">Loading...</span>
 					</div>
@@ -124,6 +125,7 @@ $('#spinnerChart').toggleClass('d-none');
 			},
 			options:{
 				responsive:true,
+				maintainAspectRatio:true,
 				tooltips:{
 					mode:'index',
 					intersect:false,
