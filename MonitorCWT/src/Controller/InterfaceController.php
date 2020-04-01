@@ -17,6 +17,7 @@ use App\Entity\Type;
 use App\Entity\Device;
 use App\Entity\InterfaceDevice;
 use App\Entity\User;
+use App\Entity\Registry;
 
 
 class InterfaceController extends AbstractController
@@ -81,6 +82,29 @@ class InterfaceController extends AbstractController
         return $response;
     }
 
+    /**
+     * @Route("/datasets", name="datasets")
+     */
+
+     public function getDatasets(Request $request)
+     {
+        $interfaceid = $request->request->get('idInterface');
+        $em = $this->getDoctrine()->getManager();
+        $query = $em->createQuery(
+            'SELECT DISTINCT r.value, DATE_FORMAT(r.rectime, \'%Y-%m-%d:%hh:%mm:%ss\') AS fecha
+            FROM App\Entity\Registry r
+            WHERE r.interface = :idinterface
+            ORDER BY fecha DESC
+            '
+        )->setParameter('idinterface', $interfaceid)
+        ->setMaxResults(50);    
+        $jsonContent = $this->getSerializer()->serialize($query->getResult(),'json');
+        $response = new Response();
+        $response->setContent($jsonContent);
+        $response->headers->set('Content-Type', 'application/json');
+        return $response;
+     }
+
     public function getSerializer(){
         $encoder = new JsonEncoder();
         $defaultContext = [
@@ -92,4 +116,6 @@ class InterfaceController extends AbstractController
 
         return $serializer = new Serializer([$normalizer], [$encoder]);
     }
+
+    
 }

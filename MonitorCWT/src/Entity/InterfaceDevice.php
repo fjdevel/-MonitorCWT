@@ -90,37 +90,7 @@ class InterfaceDevice
         return $this;
     }
 
-    /**
-     * @return Collection|Registry[]
-     */
-    public function getRegistries(): Collection
-    {
-        return $this->registries;
-    }
-
-    public function addRegistry(Registry $registry): self
-    {
-        if (!$this->registries->contains($registry)) {
-            $this->registries[] = $registry;
-            $registry->setInterface($this);
-        }
-
-        return $this;
-    }
-
-    public function removeRegistry(Registry $registry): self
-    {
-        if ($this->registries->contains($registry)) {
-            $this->registries->removeElement($registry);
-            // set the owning side to null (unless already changed)
-            if ($registry->getInterface() === $this) {
-                $registry->setInterface(null);
-            }
-        }
-
-        return $this;
-    }
-
+    
     public function getDevice(): ?Device
     {
         return $this->device;

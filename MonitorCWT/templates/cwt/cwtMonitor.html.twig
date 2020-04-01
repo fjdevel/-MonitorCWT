@@ -5,6 +5,9 @@
 
 
 {% block content %}
+<div class="alert alert-danger {{displayClass}}" role="alert">
+  {{alert}}
+</div>
 	<div class="container-fluid mt-2">
 		<div class="row">
 			<div class="col-md-3">
@@ -18,9 +21,10 @@
 					
 				<h6 class="mt-2">Select one or more interfaces</h6>
 				<div id="listinterfaces">
+				
+				</div>
 				<div class="spinner-border d-none" role="status" id="spinnerIn">
 					<span class="sr-only">Loading...</span>
-				</div>
 				</div>
 				<div class="form-check mt-1">
 				</div>
@@ -36,6 +40,9 @@
 			<div class="col-md-9">
 				<div class="w-100">
 					<canvas id="chartjs-0"></canvas>
+					<div class="spinner-border text-primary d-none" role="status" id="spinnerChart">
+						<span class="sr-only">Loading...</span>
+					</div>
 				</div>
 
 			</div>
@@ -45,9 +52,13 @@
 {% block javascripts %}
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
 	<script>
-	new Chart(document.getElementById("chartjs-0"),{"type":"line","data":{"labels":["January","February","March","April","May","June","July"],"datasets":[{"label":"My First Dataset","data":[65,59,80,81,56,55,40],"fill":false,"borderColor":"rgb(75, 192, 192)","lineTension":0.1}]},"options":{}});
-	</script>
-	<script>
+	function addData(chart,label,dataset) {
+    	myChart.config.data.labels.push("interface"+interface);
+			myChart.config.data.datasets.push(dataset);
+			myChart.update();
+	}
+	var ctx = document.getElementById("chartjs-0").getContext('2d');
+	var myChart ="";
 	$(function() {
 		let devices = $.post("{{path('myDevices')}}");
 		$.when(devices).done(function(data){
@@ -58,24 +69,77 @@
 			$('#spinnerDevices').toggleClass('d-none');
 		});
 		$('#selectDevices').change(()=>{
-			$('#spinnerIn').toggleClass('d-none');
+			
 			$("#selectDevices option:selected" ).each(function() {
-				let inter = $.post("{{path('getMyInterfaces')}}",{"device":this.value});
-				$.when(inter).done(data=>{
-					data.forEach(e=>{
-						$('#listinterfaces').append(
-							'<div class="form-check mt-1">'+
-								'<input class="form-check-input" type="checkbox" value="'+ e.id +'">'+
+				if(this.value>0){
+					$('#spinnerIn').toggleClass('d-none');
+					let inter = $.post("{{path('getMyInterfaces')}}",{"device":this.value});
+				
+					$.when(inter).done(data=>{
+						$('#listinterfaces').html("");
+						data.forEach(e=>{
+							$('#listinterfaces').append(
+								'<div class="form-check form-check-inline mt-1">'+
 								'<label class="form-check-label" for="defaultCheck1">'+
 									e.name+' - '+e.type.name+
 								'</label>'+
+								'<input onClick="genUI('+ e.id +')" class="form-check-input" type="checkbox" value="'+ e.id +'">'+
+								
 							'</div>'
-						);
+							);
+						});
+						$('#spinnerIn').toggleClass('d-none');
 					});
-					$('#spinnerIn').toggleClass('d-none');
-				});
+				}
 			});
 		});
 	});
+
+	function genUI(idInt){
+		if(myChart==""){
+$('#spinnerChart').toggleClass('d-none');
+		$.post("{{path('datasets')}}",{'idInterface':idInt}).done(res=>{
+			let datos = new Array(2);
+			datos[0] = new Array();
+			datos[1] = new Array();
+			res.forEach(e=>{
+				datos[0].push(e.fecha);
+				datos[1].push(e.value);
+			});
+			dataset = {
+				label:'interface'+idInt,
+				labels : datos[0],
+				data: datos[1],
+			}
+			myChart = new Chart(ctx, {
+			type: 'line',
+			data: {
+				labels:dataset.labels,
+				datasets:[{
+					label:dataset.label,
+					data:dataset.data,
+					fill:false,
+					borderColor:'rgb(54, 162, 235)'
+				}],
+			},
+			options:{
+				responsive:true,
+				tooltips:{
+					mode:'index',
+					intersect:false,
+				},
+				hover: {
+					mode: 'nearest',
+					intersect: true
+				}
+			}
+			});
+		$('#spinnerChart').toggleClass('d-none');
+		});
+		}
+		
+		
+	}
+	
 	</script>
 {% endblock %}

@@ -89,32 +89,42 @@ class CWTController extends AbstractController
      * @Route("/monitor", name="monitor")
      */
     public function Monitor(Request $request){
-        $data = $this->obtenerRecursos($request);
+        //$data = $this->obtenerRecursos($request);
         return $this->render('cwt/cwtMonitor.html.twig', [
-            'res'=>$data
+            //'res'=>$data,
+            'displayClass'=>'d-none',
+            'alert'=>''
         ]);
     }
     
     public function obtenerRecursos(Request $request){
         $session = $request->getSession();
         $client = new Client(['base_uri' => 'http://www.all-m2m.com:8081/','headers' => [ 'Content-Type' => 'application/json' ]]);
-        $response = $client->post("query",[
-            'body'=> json_encode(
-                [
-                    "action_cmd"=>"query_device_currentdata2",
-                    "seq_id"=>"1",
-                    "body"=>[
-                        "deviceid"=>"elx00001",
-                        "tid"=>$session->get('tid'),
-                    ],
-                    "version"=>"1.0"
-                ]
-            )
-        ]);
-        $res = json_decode($response->getBody()->getContents())->{'body'}->datadict;
-        $data = ["data"=>$res->RG2->value,
-                "label"=>$res->RG2->recv_time];
-        return $data;
+        try{
+            $response = $client->post("query",[
+                'body'=> json_encode(
+                    [
+                        "action_cmd"=>"query_device_currentdata2",
+                        "seq_id"=>"1",
+                        "body"=>[
+                            "deviceid"=>"elx00001",
+                            "tid"=>$session->get('tid'),
+                        ],
+                        "version"=>"1.0"
+                    ]
+                )
+            ]);
+            $res = json_decode($response->getBody()->getContents())->{'body'}->datadict;
+            $data = ["data"=>$res->RG2->value,
+                    "label"=>$res->RG2->recv_time];
+            return $data;
+        }catch(RequestException $e){
+            return $this->render('cwt/cwtMonitor.html.twig', [
+                //'res'=>'',
+                'displayClass'=>'',
+                'alert'=>'The server not response!, please check your connection'
+            ]);
+        }
     }
     /**
      * @Route("/getData", name="getData")
